@@ -11,54 +11,20 @@ from ui.main_window import MainWindow
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
-        print("🔐 Initializing Login Window...")
         self.setWindowTitle("Dash Poultry - Login")
         self.setFixedSize(400, 420)
-        
-        # Try to set window icon, but don't fail if it doesn't exist
-        try:
-            icon_path = os.path.join('resources', 'logo.png')
-            if os.path.exists(icon_path):
-                self.setWindowIcon(QIcon(icon_path))
-                print("✅ Window icon set successfully")
-            else:
-                print("⚠️ Logo file not found, using default icon")
-        except Exception as e:
-            print(f"⚠️ Could not set window icon: {e}")
-        
+        self.setWindowIcon(QIcon(os.path.join('resources', 'logo.png')))
         self.theme = 'light'
         self.setup_ui()
         self.load_theme()
-        print("✅ Login Window initialized successfully")
 
     def setup_ui(self):
         layout = QVBoxLayout()
         logo = QLabel()
         logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        # Try multiple possible logo paths
-        logo_paths = [
-            os.path.join(os.path.dirname(__file__), '../Logo.png'),
-            os.path.join('resources', 'logo.png'),
-            os.path.join('Logo.png')
-        ]
-        
-        logo_loaded = False
-        for logo_path in logo_paths:
-            if os.path.exists(logo_path):
-                try:
-                    logo.setPixmap(QPixmap(logo_path).scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-                    print(f"✅ Logo loaded from: {logo_path}")
-                    logo_loaded = True
-                    break
-                except Exception as e:
-                    print(f"⚠️ Could not load logo from {logo_path}: {e}")
-        
-        if not logo_loaded:
-            print("⚠️ No logo found, using text placeholder")
-            logo.setText("🐔")
-            logo.setStyleSheet("font-size: 48px; color: #059669;")
-        
+        logo_path = os.path.join(os.path.dirname(__file__), '../Logo.png')
+        if os.path.exists(logo_path):
+            logo.setPixmap(QPixmap(logo_path).scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         layout.addWidget(logo)
 
         title = QLabel("<b>Dash Poultry</b>")

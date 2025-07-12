@@ -6,7 +6,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils.data_manager import data_manager
 from utils.notification_manager import NotificationManager
-from utils.alert_manager import alert_manager
 from modules.dashboard import DashboardWidget
 from modules.batch_management import BatchManagementWidget
 from modules.feed_water_logs import FeedWaterLogsWidget
@@ -15,7 +14,6 @@ from modules.mortality_tracker import MortalityTrackerWidget
 from modules.workers_management import WorkersManagementWidget
 from modules.expenses_management import ExpensesManagementWidget
 from modules.profit_loss_analysis import ProfitLossAnalysisWidget
-from modules.analytics_module import AnalyticsWidget
 from modules.export_module import ExportModuleWidget
 from modules.settings_module import SettingsModuleWidget
 
@@ -28,7 +26,6 @@ MODULES = [
     ("Workers", "workers"),
     ("Expenses", "expenses"),
     ("Profit/Loss", "profit"),
-    ("Analytics", "analytics"),
     ("Export", "export"),
     ("Settings", "settings"),
 ]
@@ -41,21 +38,12 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(os.path.join('resources', 'logo.png')))
         self.theme = 'light'
         
-        self.init_ui()
-        self.setup_data_connections()
-        
-        # Initialize managers after UI is set up
+        # Initialize notification manager
         global notification_manager
         notification_manager = NotificationManager(self)
         
-        # Initialize alert manager after QApplication is ready
-        global alert_manager
-        alert_manager.alert_triggered.connect(self.on_alert_triggered)
-        alert_manager.show_dashboard = self.show  # Connect show_dashboard method
-        
-        # Start alert monitoring
-        alert_manager.start_monitoring()
-        
+        self.init_ui()
+        self.setup_data_connections()
         self.showMaximized()
 
     def init_ui(self):
@@ -126,7 +114,6 @@ class MainWindow(QMainWindow):
         self.workers_widget = WorkersManagementWidget()
         self.expenses_widget = ExpensesManagementWidget()
         self.profit_loss_widget = ProfitLossAnalysisWidget()
-        self.analytics_widget = AnalyticsWidget()
         self.export_widget = ExportModuleWidget()
         self.settings_widget = SettingsModuleWidget(self)
         
@@ -139,13 +126,11 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.workers_widget)
         self.stack.addWidget(self.expenses_widget)
         self.stack.addWidget(self.profit_loss_widget)
-        self.stack.addWidget(self.analytics_widget)
         self.stack.addWidget(self.export_widget)
         self.stack.addWidget(self.settings_widget)
         
         # Connect dashboard signals
         self.dashboard_widget.module_switch_requested.connect(self.switch_module)
-        
         central_layout.addWidget(self.stack)
         
         # Add notification area
@@ -265,12 +250,6 @@ class MainWindow(QMainWindow):
         """Handle revenue data changes"""
         notification_manager.show_success("Revenue Recorded", "Revenue information has been updated.")
         self.dashboard_widget.refresh_data()
-    
-    def on_alert_triggered(self, title, message, alert_type):
-        """Handle alerts from alert manager"""
-        # The notification is already shown by the alert manager
-        # We can add additional handling here if needed
-        pass
 
     def logout(self):
         self.close()

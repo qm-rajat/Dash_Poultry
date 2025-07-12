@@ -1,6 +1,10 @@
-PyQt6>=6.4.0
-pyqtgraph>=0.13.0
-pandas>=1.5.0
-numpy>=1.24.0
-openpyxl>=3.0.0
-reportlab>=3.6.0 
+PyQt6
+bcrypt
+pysqlcipher3
+cryptography
+pyqtgraph
+matplotlib
+reportlab
+python-pptx
+openpyxl
+PyInstaller 

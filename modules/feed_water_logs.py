@@ -4,7 +4,6 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
-from utils.context_manager import context_manager
 
 class LogDialog(QDialog):
     def __init__(self, parent=None, batches=None, log=None):
@@ -56,9 +55,6 @@ class FeedWaterLogsWidget(QWidget):
         self.init_ui()
         self.load_batches()
         self.load_logs()
-        
-        # Connect to context manager
-        context_manager.context_changed.connect(self.on_context_changed)
 
     def init_ui(self):
         layout = QVBoxLayout(self)
@@ -218,21 +214,4 @@ class FeedWaterLogsWidget(QWidget):
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to delete log: {e}")
             finally:
-                conn.close()
-    
-    def on_context_changed(self, module_name: str, context_data: dict):
-        """Handle context changes from other modules"""
-        if module_name == 'feed_water' and 'selected_batch' in context_data:
-            selected_batch = context_data['selected_batch']
-            
-            # Pre-select the batch in the filter
-            index = self.batch_filter.findText(selected_batch)
-            if index >= 0:
-                self.batch_filter.setCurrentIndex(index)
-            
-            # Show a notification about the context
-            from utils.notification_manager import notification_manager
-            notification_manager.show_info(
-                "Context Applied", 
-                f"Pre-selected batch '{selected_batch}' from batch management module."
-            ) 
+                conn.close() 

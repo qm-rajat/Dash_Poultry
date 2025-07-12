@@ -6,8 +6,20 @@ DB_PATH = os.path.join(os.path.dirname(__file__), 'dash_poultry.db')
 ADMIN_USERNAME = 'a'
 ADMIN_PASSWORD = 'a'
 
+# Try to use SQLCipher, fallback to sqlite3
+try:
+    import pysqlcipher3.dbapi2 as sqlcipher
+    USE_SQLCIPHER = True
+except ImportError:
+    USE_SQLCIPHER = False
+
 def get_connection():
-    return sqlite3.connect(DB_PATH)
+    if USE_SQLCIPHER:
+        conn = sqlcipher.connect(DB_PATH)
+        conn.execute("PRAGMA key = 'dashpoultry_secret_key';")
+        return conn
+    else:
+        return sqlite3.connect(DB_PATH)
 
 def init_db():
     conn = get_connection()

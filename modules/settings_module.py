@@ -7,7 +7,6 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
-from utils.data_import_manager import DataImportWidget
 
 class SettingsModuleWidget(QWidget):
     def __init__(self, main_window=None):
@@ -39,10 +38,6 @@ class SettingsModuleWidget(QWidget):
         # Application tab
         self.application_tab = self.create_application_tab()
         self.tab_widget.addTab(self.application_tab, "Application")
-        
-        # Data Import/Export tab
-        self.import_export_tab = self.create_import_export_tab()
-        self.tab_widget.addTab(self.import_export_tab, "Data Import/Export")
         
         # About tab
         self.about_tab = self.create_about_tab()
@@ -192,17 +187,6 @@ class SettingsModuleWidget(QWidget):
         layout.addWidget(export_frame)
         
         layout.addStretch()
-        return widget
-
-    def create_import_export_tab(self):
-        """Create data import/export tab"""
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        
-        # Add the data import widget
-        import_widget = DataImportWidget()
-        layout.addWidget(import_widget)
-        
         return widget
 
     def create_about_tab(self):

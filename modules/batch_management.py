@@ -1,13 +1,11 @@
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLabel, QDialog, QFormLayout, QLineEdit, QDateEdit, QDialogButtonBox, QSpinBox, QDoubleSpinBox, QFileDialog, QAbstractItemView, QHeaderView, QMenu)
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox, QLabel, QDialog, QFormLayout, QLineEdit, QDateEdit, QDialogButtonBox, QSpinBox, QDoubleSpinBox, QFileDialog, QAbstractItemView, QHeaderView)
 from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt6.QtGui import QCursor
 import csv
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
-from utils.context_manager import context_manager
 
 class BatchDialog(QDialog):
     def __init__(self, parent=None, batch=None):
@@ -90,10 +88,6 @@ class BatchManagementWidget(QWidget):
         self.table.verticalHeader().setVisible(False)
         self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        
-        # Add context menu for contextual actions
-        self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.table.customContextMenuRequested.connect(self.show_context_menu)
         layout.addWidget(self.table)
         # Buttons
         btn_layout = QHBoxLayout()
@@ -110,12 +104,12 @@ class BatchManagementWidget(QWidget):
         # Cross-module action buttons
         self.feed_btn = QPushButton("Log Feed/Water")
         self.feed_btn.setStyleSheet("background-color: #3b82f6; color: white;")
-        self.feed_btn.clicked.connect(self.navigate_to_feed_water)
+        self.feed_btn.clicked.connect(lambda: self.parent().parent().parent().switch_module(2))
         btn_layout.addWidget(self.feed_btn)
         
         self.vaccine_btn = QPushButton("Record Vaccination")
         self.vaccine_btn.setStyleSheet("background-color: #10b981; color: white;")
-        self.vaccine_btn.clicked.connect(self.navigate_to_vaccination)
+        self.vaccine_btn.clicked.connect(lambda: self.parent().parent().parent().switch_module(3))
         btn_layout.addWidget(self.vaccine_btn)
         
         self.export_btn = QPushButton("Export CSV")
@@ -240,90 +234,4 @@ class BatchManagementWidget(QWidget):
                 doc += '\t'.join([self.table.item(row, col).text() if self.table.item(row, col) else '' for col in range(self.table.columnCount())]) + '\n'
             from PyQt6.QtGui import QTextDocument
             text_doc = QTextDocument(doc)
-            text_doc.print(printer)
-    
-    def get_selected_batch_data(self):
-        """Get data from the currently selected batch row"""
-        row = self.table.currentRow()
-        if row < 0:
-            return None
-        
-        return {
-            'batch_id': self.table.item(row, 0).text(),
-            'num_chicks': int(self.table.item(row, 1).text()),
-            'breed': self.table.item(row, 2).text(),
-            'date_in': self.table.item(row, 3).text(),
-            'expected_out': self.table.item(row, 4).text(),
-            'mortality_rate': float(self.table.item(row, 5).text())
-        }
-    
-    def navigate_to_feed_water(self):
-        """Navigate to feed/water module with selected batch context"""
-        batch_data = self.get_selected_batch_data()
-        if not batch_data:
-            QMessageBox.warning(self, "Select Batch", "Please select a batch first.")
-            return
-        
-        # Set context for feed/water module
-        context_manager.set_context('feed_water', {
-            'selected_batch': batch_data['batch_id'],
-            'source_module': 'batches'
-        })
-        
-        # Navigate to feed/water module
-        main_window = self.parent().parent().parent()
-        main_window.switch_module(2)
-    
-    def navigate_to_vaccination(self):
-        """Navigate to vaccination module with selected batch context"""
-        batch_data = self.get_selected_batch_data()
-        if not batch_data:
-            QMessageBox.warning(self, "Select Batch", "Please select a batch first.")
-            return
-        
-        # Set context for vaccination module
-        context_manager.set_context('vaccination', {
-            'selected_batch': batch_data['batch_id'],
-            'source_module': 'batches'
-        })
-        
-        # Navigate to vaccination module
-        main_window = self.parent().parent().parent()
-        main_window.switch_module(3)
-    
-    def show_context_menu(self, position):
-        """Show context menu with contextual actions"""
-        batch_data = self.get_selected_batch_data()
-        if not batch_data:
-            return
-        
-        context_menu = QMenu(self)
-        
-        # Add contextual actions
-        log_feed_action = context_menu.addAction("📝 Log Feed/Water for this batch")
-        log_feed_action.triggered.connect(self.navigate_to_feed_water)
-        
-        record_vaccine_action = context_menu.addAction("💉 Record Vaccination for this batch")
-        record_vaccine_action.triggered.connect(self.navigate_to_vaccination)
-        
-        context_menu.addSeparator()
-        
-        view_details_action = context_menu.addAction("👁️ View Batch Details")
-        view_details_action.triggered.connect(lambda: self.show_batch_details(batch_data))
-        
-        # Show menu at cursor position
-        context_menu.exec(QCursor.pos())
-    
-    def show_batch_details(self, batch_data):
-        """Show detailed information about the selected batch"""
-        details = f"""
-        <h3>Batch Details</h3>
-        <p><b>Batch ID:</b> {batch_data['batch_id']}</p>
-        <p><b>Breed:</b> {batch_data['breed']}</p>
-        <p><b>Number of Chicks:</b> {batch_data['num_chicks']}</p>
-        <p><b>Date In:</b> {batch_data['date_in']}</p>
-        <p><b>Expected Out:</b> {batch_data['expected_out']}</p>
-        <p><b>Mortality Rate:</b> {batch_data['mortality_rate']:.2%}</p>
-        """
-        
-        QMessageBox.information(self, "Batch Details", details) 
+            text_doc.print(printer) 

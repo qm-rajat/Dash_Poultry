@@ -58,25 +58,6 @@ class DashboardWidget(QWidget):
         actions_title = QLabel("<b>Quick Actions</b>")
         actions_title.setStyleSheet("font-size: 16px; margin-bottom: 8px;")
         actions_layout.addWidget(actions_title)
-        
-        # Customize button
-        self.customize_btn = QPushButton("🎨 Customize Dashboard")
-        self.customize_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #8b5cf6;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 5px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #7c3aed;
-            }
-        """)
-        self.customize_btn.clicked.connect(self.customize_dashboard)
-        actions_layout.addWidget(self.customize_btn)
-        
         actions_layout.addStretch()
         main_layout.addLayout(actions_layout)
         
@@ -290,10 +271,4 @@ class DashboardWidget(QWidget):
                 if widget is not None:
                     widget.deleteLater()
         # Reinitialize UI with fresh data
-        self.init_ui()
-    
-    def customize_dashboard(self):
-        """Open dashboard customizer"""
-        from utils.dashboard_customizer import DashboardCustomizerDialog
-        dialog = DashboardCustomizerDialog(self)
-        dialog.exec() 
+        self.init_ui() 
