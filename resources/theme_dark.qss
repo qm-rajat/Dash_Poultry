@@ -1,0 +1,27 @@
+QWidget {
+    background: #23272e;
+    color: #f7f7f7;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+}
+QPushButton {
+    background: #2d323b;
+    border-radius: 6px;
+    padding: 6px 16px;
+    border: 1px solid #444;
+}
+QPushButton:hover {
+    background: #3a3f4a;
+}
+QLineEdit, QComboBox, QSpinBox {
+    background: #181a20;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+QFrame[card="true"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #23272e, stop:1 #2a3cff);
+    border-radius: 14px;
+    border: 1.5px solid #444;
+    padding: 18px 18px 12px 18px;
+} 
