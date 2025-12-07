@@ -7,6 +7,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
+from utils.data_manager import data_manager
 
 class MortalityDialog(QDialog):
     def __init__(self, parent=None, batches=None, mortality=None):
@@ -57,6 +58,14 @@ class MortalityTrackerWidget(QWidget):
         super().__init__()
         self.all_rows = []  # Store all rows for filtering
         self.init_ui()
+        self.load_batches()
+        try:
+            data_manager.batch_data_changed.connect(self.on_batch_data_changed)
+        except Exception:
+            pass
+        self.load_mortality()
+
+    def on_batch_data_changed(self):
         self.load_batches()
         self.load_mortality()
 

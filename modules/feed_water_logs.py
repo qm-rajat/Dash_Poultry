@@ -4,6 +4,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
+from utils.data_manager import data_manager
 
 class LogDialog(QDialog):
     def __init__(self, parent=None, batches=None, log=None):
@@ -53,6 +54,14 @@ class FeedWaterLogsWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        self.load_batches()
+        try:
+            data_manager.batch_data_changed.connect(self.on_batch_data_changed)
+        except Exception:
+            pass
+        self.load_logs()
+
+    def on_batch_data_changed(self):
         self.load_batches()
         self.load_logs()
 

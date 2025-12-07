@@ -7,6 +7,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
+from utils.data_manager import data_manager
 
 class ExpenseDialog(QDialog):
     def __init__(self, parent=None, expense=None):
@@ -233,6 +234,10 @@ class ExpensesManagementWidget(QWidget):
                 conn.commit()
                 QMessageBox.information(self, "Success", "Expense added successfully.")
                 self.load_expenses()
+                try:
+                    data_manager.notify_expense_change()
+                except Exception:
+                    pass
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to add expense: {e}")
             finally:
@@ -257,6 +262,10 @@ class ExpensesManagementWidget(QWidget):
                 conn.commit()
                 QMessageBox.information(self, "Success", "Expense updated successfully.")
                 self.load_expenses()
+                try:
+                    data_manager.notify_expense_change()
+                except Exception:
+                    pass
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to update expense: {e}")
             finally:
@@ -280,6 +289,10 @@ class ExpensesManagementWidget(QWidget):
                 conn.commit()
                 QMessageBox.information(self, "Success", "Expense deleted successfully.")
                 self.load_expenses()
+                try:
+                    data_manager.notify_expense_change()
+                except Exception:
+                    pass
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to delete expense: {e}")
             finally:

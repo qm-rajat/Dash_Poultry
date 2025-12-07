@@ -28,7 +28,18 @@ class DashboardWidget(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        main_layout = QVBoxLayout(self)
+        # Reuse existing layout if present to avoid adding multiple layouts to the same widget
+        existing = self.layout()
+        if existing is None:
+            main_layout = QVBoxLayout(self)
+        else:
+            main_layout = existing
+            # Clear any existing items/widgets from the layout
+            while main_layout.count():
+                item = main_layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
         # Dashboard title
         title = QLabel("<b style='font-size:28px;'>Dashboard Overview</b>")
         subtitle = QLabel("<span style='color:#888;font-size:15px;'>Farm performance at a glance</span>")

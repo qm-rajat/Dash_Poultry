@@ -7,11 +7,20 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from database.init_db import get_connection
+from utils.data_manager import data_manager
 
 class ProfitLossAnalysisWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
+        # Connect to data manager signals so charts/labels update live
+        try:
+            data_manager.revenue_data_changed.connect(self.on_financial_data_changed)
+            data_manager.expense_data_changed.connect(self.on_financial_data_changed)
+            data_manager.revenue_data_changed.connect(self.load_data)
+            data_manager.expense_data_changed.connect(self.load_data)
+        except Exception:
+            pass
         self.load_data()
 
     def init_ui(self):
@@ -48,19 +57,23 @@ class ProfitLossAnalysisWidget(QWidget):
         
         # Revenue vs Expenses chart
         self.revenue_expenses_chart = self.create_revenue_expenses_chart()
-        charts_layout.addWidget(self.chart_card(self.revenue_expenses_chart, "Revenue vs Expenses"), 0, 0)
+        self.revenue_card = self.chart_card(self.revenue_expenses_chart, "Revenue vs Expenses")
+        charts_layout.addWidget(self.revenue_card, 0, 0)
         
         # Monthly profit trend
         self.monthly_profit_chart = self.create_monthly_profit_chart()
-        charts_layout.addWidget(self.chart_card(self.monthly_profit_chart, "Monthly Profit Trend"), 0, 1)
+        self.monthly_card = self.chart_card(self.monthly_profit_chart, "Monthly Profit Trend")
+        charts_layout.addWidget(self.monthly_card, 0, 1)
         
         # Expense breakdown pie chart
         self.expense_breakdown_chart = self.create_expense_breakdown_chart()
-        charts_layout.addWidget(self.chart_card(self.expense_breakdown_chart, "Expense Breakdown"), 1, 0)
+        self.expense_card = self.chart_card(self.expense_breakdown_chart, "Expense Breakdown")
+        charts_layout.addWidget(self.expense_card, 1, 0)
         
         # Revenue by batch
         self.revenue_by_batch_chart = self.create_revenue_by_batch_chart()
-        charts_layout.addWidget(self.chart_card(self.revenue_by_batch_chart, "Revenue by Batch"), 1, 1)
+        self.revenue_by_batch_card = self.chart_card(self.revenue_by_batch_chart, "Revenue by Batch")
+        charts_layout.addWidget(self.revenue_by_batch_card, 1, 1)
         
         charts_widget = QWidget()
         charts_widget.setLayout(charts_layout)
@@ -117,6 +130,49 @@ class ProfitLossAnalysisWidget(QWidget):
         self.load_breakdown_data()
         
         conn.close()
+
+    def on_financial_data_changed(self):
+        """Refresh charts when revenue/expense data changes."""
+        try:
+            # Recreate and replace each chart widget inside its card
+            new_rev_exp = self.create_revenue_expenses_chart()
+            rev_layout = self.revenue_card.layout()
+            # replace old chart (assumed at index 1)
+            old_widget = rev_layout.itemAt(1).widget()
+            if old_widget:
+                old_widget.deleteLater()
+            rev_layout.insertWidget(1, new_rev_exp)
+            self.revenue_expenses_chart = new_rev_exp
+
+            new_monthly = self.create_monthly_profit_chart()
+            mon_layout = self.monthly_card.layout()
+            old_widget = mon_layout.itemAt(1).widget()
+            if old_widget:
+                old_widget.deleteLater()
+            mon_layout.insertWidget(1, new_monthly)
+            self.monthly_profit_chart = new_monthly
+
+            new_expense = self.create_expense_breakdown_chart()
+            exp_layout = self.expense_card.layout()
+            old_widget = exp_layout.itemAt(1).widget()
+            if old_widget:
+                old_widget.deleteLater()
+            exp_layout.insertWidget(1, new_expense)
+            self.expense_breakdown_chart = new_expense
+
+            new_rev_by_batch = self.create_revenue_by_batch_chart()
+            rb_layout = self.revenue_by_batch_card.layout()
+            old_widget = rb_layout.itemAt(1).widget()
+            if old_widget:
+                old_widget.deleteLater()
+            rb_layout.insertWidget(1, new_rev_by_batch)
+            self.revenue_by_batch_chart = new_rev_by_batch
+
+            # Update breakdown table/labels as well
+            self.load_data()
+        except Exception:
+            # Non-fatal: ignore errors during UI refresh
+            pass
 
     def load_breakdown_data(self):
         conn = get_connection()
