@@ -26,7 +26,7 @@ pyinstaller --onefile --windowed main.py
 ```
 
 ---
-Default login: `admin1` / `admin1`
+Default login: `a` / `a`
 
 
 
